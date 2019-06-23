@@ -205,5 +205,26 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
                 //Return the View with Model
                 return View(model);
         }
+
+        // GET: Admin/Pages/DeletePage/id
+        public ActionResult DeletePage(int id)
+        {
+            using (Db db = new Db())
+            {
+
+                //Get PageVM
+                PageDTO dto = db.Pages.Find(id);
+
+                //Remove Page
+                db.Pages.Remove(dto);
+
+                //Save
+                db.SaveChanges();
+
+            }
+
+                //redirect
+                return RedirectToAction("Index");
+        }
     }
 }
