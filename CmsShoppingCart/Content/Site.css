@@ -22,10 +22,15 @@ select,
 textarea {
     max-width: 280px;
 }
-table.sorting tr:not(.home){
+.sorting tr:not(.home){
     cursor:pointer;
 }
 
 .ui-state-highlight{
     border:1px dashed #ccc;
+}
+
+
+span .ajax-text {
+    display: none;
 }
