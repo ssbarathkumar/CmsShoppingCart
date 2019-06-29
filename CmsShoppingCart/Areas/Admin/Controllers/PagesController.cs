@@ -254,5 +254,52 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
 
         }
 
+        // GET: Admin/Pages/EditSidebar
+        [HttpGet]
+        public ActionResult EditSidebar()
+        {
+            //Declare model
+            SidebarVM model;
+
+            using (Db db = new Db())
+            {
+                //Get DTO
+                SidebarDTO dto = db.Sidebar.Find(1);
+
+                //Intialize view model
+                model = new SidebarVM(dto);
+
+            }
+
+             //Return view with model
+             return View(model);
+        }
+
+        // POST: Admin/Pages/EditSidebar
+        [HttpPost]
+        public ActionResult EditSidebar(SidebarVM model)
+        {
+            
+
+            using (Db db = new Db())
+            {
+                //Get DTO
+                SidebarDTO dto = db.Sidebar.Find(1);
+
+                //DTO the body
+                dto.Body = model.Body;
+
+                //Save
+                db.SaveChanges();
+
+                
+            }
+            //Set TempData
+            TempData["SM"] = "You have Edited the Sidebar";
+
+            //Redirect
+            return RedirectToAction("EditSidebar");
+        }
+
     }
 }
