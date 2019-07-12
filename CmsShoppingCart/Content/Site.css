@@ -22,7 +22,7 @@ select,
 textarea {
     max-width: 280px;
 }
-.sorting tr:not(.home){
+table.sorting tr:not(.home){
     cursor:pointer;
 }
 
@@ -30,7 +30,17 @@ textarea {
     border:1px dashed #ccc;
 }
 
-
-span .ajax-text {
+div.new-cat {
+    margin-top: 30px;
+    position: relative;
+}
+span.ajax-text {
     display: none;
+}
+
+table.sorting.categories td {
+    padding: 20px;
+}
+.ajaxdivtd{
+    position:absolute;
 }
