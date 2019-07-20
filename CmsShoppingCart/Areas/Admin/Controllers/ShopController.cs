@@ -422,10 +422,96 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
 
             #region Image Upload
 
+            //Check file upload
+            if (file != null && file.ContentLength > 0)
+            {
+
+                //Get extension
+                string ext = file.ContentType.ToLower();
+
+                //verify extension
+                if (ext != "image/jpg" &&
+                    ext != "image/jpeg" &&
+                    ext != "image/pjpeg" &&
+                    ext != "image/gif" &&
+                    ext != "image/x-png" &&
+                    ext != "image/png")
+                {
+                    using (Db db = new Db())
+                    {
+                        ModelState.AddModelError("", "The Image was not uploaded - wrong image format!");
+                        return View(model);
+
+
+                    }
+                }
+
+                //Set upload directory path
+                var originalDirectory = new DirectoryInfo(string.Format("{0}Image\\Uploads", Server.MapPath(@"\")));
+
+                
+                var pathString1 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString());
+                var pathString2 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Thumbs");
+
+                //Delete file from directory path
+                DirectoryInfo dil1 = new DirectoryInfo(pathString1);
+                DirectoryInfo dil2 = new DirectoryInfo(pathString2);
+
+                foreach (FileInfo file1 in dil1.GetFiles())
+                {
+                    file1.Delete();
+                }
+                foreach (FileInfo file2 in dil2.GetFiles())
+                {
+                    file2.Delete();
+                }
+                //Save image name
+                string imageName = file.FileName;
+                using (Db db=new Db())
+                {
+                    ProductDTO dto = db.Products.Find(id);
+
+                    dto.ImageName = imageName;
+                    db.SaveChanges();
+                }
+
+                //Save original file and thumb
+                var path = string.Format("{0}\\{1}", pathString1, imageName);
+                var path2 = string.Format("{0}\\{1}", pathString2, imageName);
+
+                file.SaveAs(path);
+
+                WebImage img = new WebImage(file.InputStream);
+                img.Resize(200, 200);
+                img.Save(path2);
+            }
+
             #endregion
 
             //Redirect
             return RedirectToAction("EditProduct");
+        }
+
+        //GET : Admin/Shop/DeleteProduct/id
+        public ActionResult DeleteProduct(int id)
+        {
+            //Delete Product
+            using (Db db = new Db())
+            {
+                ProductDTO dto = db.Products.Find(id);
+                db.Products.Remove(dto);
+                db.SaveChanges();
+            }
+
+            //Delete Product Directory
+            var originalDirectory = new DirectoryInfo(string.Format("{0}Image//Uploads", Server.MapPath(@"\")));
+            string pathString = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString());
+
+            if (Directory.Exists(pathString))
+                Directory.Delete(pathString, true);
+
+            //Redirect
+            return RedirectToAction("Products");
         }
 
     }
