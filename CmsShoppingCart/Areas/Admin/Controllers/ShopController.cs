@@ -514,5 +514,39 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
             return RedirectToAction("Products");
         }
 
+
+        //POST : Admin/Shop/SaveGalleryImages
+        [HttpPost]
+        public void SaveGalleryImages(int id)
+        {
+            // Loop through files
+            foreach (string fileName in Request.Files)
+            {
+
+                // Initialize files
+                HttpPostedFileBase file = Request.Files[fileName];
+
+                //Check it is not null
+                if (file != null && file.ContentLength > 0)
+                {
+                    //Set Directory path
+                    var originalDirectory = new DirectoryInfo(string.Format("{0}Image\\Uploads", Server.MapPath(@"\")));
+
+                    string pathString1 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery");
+                    string pathString2 = Path.Combine(originalDirectory.ToString(), "Products\\" + id.ToString() + "\\Gallery\\Thumbs");
+
+                    //Set image path
+                    var path = string.Format("{0}\\{1}", pathString1, file.FileName);
+                    var path2 = string.Format("{0}\\{1}", pathString2, file.FileName);
+
+                    //save original and thumb
+                    file.SaveAs(path);
+                    WebImage img = new WebImage(file.InputStream);
+                    img.Resize(200, 200);
+                    img.Save(path2);
+                }
+            }
+        }
+
     }
 }
