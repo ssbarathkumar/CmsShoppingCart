@@ -545,7 +545,7 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
                     img.Resize(200, 200);
                     img.Save(path2);
                 }
-            }
+            }            
         }
 
         //POST : Admin/Shop/DeleteImage
