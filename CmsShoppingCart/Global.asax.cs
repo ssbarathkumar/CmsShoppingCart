@@ -1,6 +1,8 @@
-﻿using System;
+﻿using CmsShoppingCart.Models.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
@@ -16,6 +18,36 @@ namespace CmsShoppingCart
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        protected void Application_AuthenticateRequest()
+        {
+            //Check if user loged in
+            if (User == null)
+            {
+                return;
+            }
+
+            //Get the user
+            string userName = Context.User.Identity.Name;
+
+            //declare array of roles
+            string[] roles = null;
+
+            using (Db db = new Db())
+            {
+                //populate roles
+                UserDTO dto = db.Users.FirstOrDefault(x => x.Username == userName);
+
+                roles = db.UserRoles.Where(x => x.UserId == dto.Id).Select(x => x.Role.Name).ToArray();
+            }
+
+            //Build IPrincipal object
+            IIdentity userIdentity = new GenericIdentity(userName);
+            IPrincipal newUserObj = new GenericPrincipal(userIdentity, roles);
+
+            //Update context.user
+            Context.User = newUserObj;
         }
     }
 }
