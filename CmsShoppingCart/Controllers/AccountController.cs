@@ -1,5 +1,6 @@
 ﻿using CmsShoppingCart.Models.Data;
 using CmsShoppingCart.Models.ViewModels.Account;
+using CmsShoppingCart.Models.ViewModels.Shop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -250,6 +251,68 @@ namespace CmsShoppingCart.Controllers
 
             //redirect
             return Redirect("~/account/user-profile");
+        }
+
+        //GET: /account/Orders
+
+        public ActionResult Orders()
+        {
+            //Initialize list of OrdersForUserVM
+            List<OrderForUserVM> orderForUser = new List<OrderForUserVM>();
+
+            using (Db db = new Db())
+            {
+                //Get Userid
+                UserDTO user = db.Users.Where(x => x.Username == User.Identity.Name).FirstOrDefault();
+                int userId = user.Id;
+
+                //Initialize list of orderVM
+                List<OrderVM> orders = db.Orders.Where(x => x.UserId == userId).ToArray().Select(x => new OrderVM(x)).ToList();
+
+                //Loop through list of OrderVM
+                foreach (var order in orders)
+                {
+                    //Initialize product dictionary
+                    Dictionary<string, int> productsAndQty = new Dictionary<string, int>();
+
+                    //Declare total
+                    decimal total = 0m;
+
+                    //Initialze List of OrderDetailsDTO
+                    List<OrderDetailsDTO> orderDetailsDTO = db.OrderDetails.Where(x => x.OrderId == order.OrderId).ToList();
+
+                    //Loop through the List of OrderDetailsDTO
+                    foreach (var orderDetails in orderDetailsDTO)
+                    {
+                        //Get Product
+                        ProductDTO productDTO = db.Products.Where(x => x.Id == orderDetails.ProductId).FirstOrDefault();
+
+                        //Get Product price
+                        decimal productPrice = productDTO.Price;
+
+                        //Get Product name
+                        string productName = productDTO.Name;
+
+                        //Add to product dictionay
+                        productsAndQty.Add(productName, orderDetails.Quantity);
+
+                        //Get total
+                        total += orderDetails.Quantity * productPrice;
+                    }
+
+                    //Add to OrdersForUserVM List
+                    orderForUser.Add(new OrderForUserVM()
+                    {
+                        OrderNumber = order.OrderId,
+                        Total = total,
+                        ProductsAndQty = productsAndQty,
+                        CreatedAt = order.CreatedAt
+                    });
+                }
+            }
+
+            //Return view with list of ordersForUserVM
+            return View(orderForUser);
         }
     }
 }       
